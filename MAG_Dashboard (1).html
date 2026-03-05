@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mitarbeiterdashboard.ch — MAG Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f6fa;--sidebar:#101828;--card:#fff;--border:#e3e8ef;--text:#1a1d26;--text2:#4b5563;--text3:#9ca3af;--blue:#2563eb;--blue-light:#eff6ff;--teal:#0d9488;--teal-light:#f0fdfa;--red:#ef4444;--red-light:#fef2f2;--amber:#f59e0b;--slate:#64748b;--font:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--radius:10px;--shadow:0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.02);--shadow-lg:0 4px 12px rgba(0,0,0,.06)}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;min-height:100vh;line-height:1.5}
+#sidebar{width:270px;min-height:100vh;background:var(--sidebar);color:#94a3b8;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .3s}
+.sb-logo{padding:22px 24px 16px;border-bottom:1px solid rgba(255,255,255,.06)}
+.sb-logo .brand{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.sb-logo .brand-dot{width:8px;height:8px;border-radius:50%;background:var(--teal)}
+.sb-logo .brand-url{font-size:11px;color:var(--teal);font-weight:600;letter-spacing:.02em}
+.sb-logo h1{font-size:17px;font-weight:800;color:#fff;letter-spacing:-.02em}
+.sb-logo p{font-size:11px;color:#64748b;margin-top:2px}
+.sb-person{padding:14px 24px;border-bottom:1px solid rgba(255,255,255,.06)}
+.sb-person .nm{font-size:13px;font-weight:700;color:#e2e8f0}
+.sb-person .dt{font-size:11px;color:#64748b;margin-top:1px}
+#nav{padding:14px 12px;flex:1}
+#nav button{display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px;border-radius:8px;border:none;background:0 0;color:#94a3b8;font:500 13px/1 var(--font);cursor:pointer;text-align:left;transition:.15s;margin-bottom:2px}
+#nav button:hover{background:rgba(255,255,255,.06)}
+#nav button.active{background:rgba(59,130,246,.15);color:#60a5fa;font-weight:700}
+#nav button svg{flex-shrink:0;width:18px;height:18px}
+.sb-bottom{padding:12px 24px;border-top:1px solid rgba(255,255,255,.06)}
+.sb-bottom button{display:flex;align-items:center;gap:8px;width:100%;padding:9px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#94a3b8;font:600 12px/1 var(--font);cursor:pointer;justify-content:center;transition:.15s}
+.sb-bottom button:hover{background:rgba(255,255,255,.08);color:#e2e8f0}
+.sb-footer{padding:10px 24px 16px;text-align:center}
+.sb-footer a{font-size:10px;color:#475569;text-decoration:none;font-weight:600;letter-spacing:.03em}
+.sb-footer a:hover{color:var(--teal)}
+#main{margin-left:270px;padding:32px 40px;flex:1;min-height:100vh}
+.mx{max-width:960px}
+.card{background:var(--card);border-radius:var(--radius);padding:24px 28px;margin-bottom:20px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.ct{font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px;letter-spacing:.01em}
+.e{background:0 0;border:1.5px solid transparent;border-radius:6px;padding:6px 10px;font:13px/1.4 var(--font);color:var(--text);width:100%;transition:.2s;outline:0}
+.e:hover{border-color:#d1d5db;background:#fafbfc}
+.e:focus{border-color:var(--blue);background:var(--blue-light);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.e-num{width:100px;text-align:right;font-variant-numeric:tabular-nums}
+.ek{font-size:22px;font-weight:800;text-align:center;padding:4px 6px;border-radius:6px;background:0 0;border:1.5px solid transparent;width:100%;font-family:var(--font);outline:0;transition:.2s}
+.ek:hover{border-color:#d1d5db;background:#fafbfc}
+.ek:focus{border-color:var(--blue);background:var(--blue-light);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.el{font-size:10px;font-weight:700;text-align:center;padding:3px 6px;border-radius:4px;background:0 0;border:1px solid transparent;width:100%;font-family:var(--font);color:var(--text3);text-transform:uppercase;letter-spacing:.05em;outline:0;transition:.2s}
+.el:hover{border-color:#e2e8f0;background:#fafbfc}.el:focus{border-color:var(--blue);background:var(--blue-light)}
+.es{font-size:12px;text-align:center;padding:2px 6px;border-radius:4px;background:0 0;border:1px solid transparent;width:100%;font-family:var(--font);color:var(--text3);outline:0;transition:.2s}
+.es:hover{border-color:#e2e8f0;background:#fafbfc}.es:focus{border-color:var(--blue);background:var(--blue-light)}
+textarea.e{resize:vertical;min-height:40px;font-style:italic}
+.kg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:20px}
+.kpi{padding:16px 20px;border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow);border:1px solid var(--border)}
+.kpi.bl{border-left:4px solid}.kpi.bt{border-top:3px solid}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
+th{text-align:left;padding:10px 12px;border-bottom:2px solid var(--border);color:var(--text3);font:700 10px/1 var(--font);text-transform:uppercase;letter-spacing:.06em}
+td{padding:5px 6px;border-bottom:1px solid #f1f5f9;color:var(--text2);vertical-align:middle}
+tr:hover td{background:#fafbfc}
+.btn{padding:8px 18px;border-radius:8px;font:600 13px/1 var(--font);cursor:pointer;transition:.15s;border:none}
+.bp{background:var(--blue);color:#fff}.bp:hover{background:#1d4ed8}
+.bo{background:#fff;color:var(--text2);border:1px solid var(--border)}.bo:hover{background:#f8fafc}
+.bs{padding:4px 12px;font-size:11px;border-radius:6px}
+.bd{background:#fff5f5;color:var(--red);border:1px solid #fecaca}.bd:hover{background:#fef2f2}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600}
+select.cs{padding:5px 10px;border-radius:6px;border:1.5px solid var(--border);font:12px/1 var(--font);background:#fff;color:var(--text2);cursor:pointer;outline:0;transition:.2s}
+select.cs:focus{border-color:var(--blue)}
+.ph{padding:20px 24px;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:14px;transition:.2s}
+.ph:hover{box-shadow:var(--shadow-lg)}.ph.act{border:2px solid var(--teal);background:var(--teal-light)}
+.co{padding:14px 20px;border-radius:var(--radius);border-left:4px solid;display:flex;align-items:flex-start;gap:12px;margin-bottom:20px}
+.gn{width:30px;height:30px;border-radius:8px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
+.chk{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px;color:var(--text2);cursor:pointer}
+.chk input[type=checkbox]{width:18px;height:18px;accent-color:var(--teal);flex-shrink:0;cursor:pointer}
+.chk.done .e{text-decoration:line-through;opacity:.5}
+.pb{display:flex;align-items:center;margin-bottom:24px}
+.pd{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
+.pd.on{background:var(--teal);color:#fff;box-shadow:0 0 0 4px rgba(13,148,136,.2)}.pd.off{background:#e2e8f0;color:#94a3b8}
+.pl{flex:1;height:3px;margin:0 4px}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:600px}
+.sg label{display:block;font:700 10px/1 var(--font);color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.sg input{width:100%;padding:9px 14px;border-radius:8px;border:1.5px solid var(--border);font:14px/1.4 var(--font);color:var(--text);outline:0;transition:.2s}
+.sg input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.section{display:none}.section.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.gap-row{display:flex;gap:16px;margin-top:18px;flex-wrap:wrap}
+.gap-card{padding:14px 20px;border-radius:var(--radius);flex:1;min-width:200px}
+.donut-c{display:flex;align-items:center;gap:40px;flex-wrap:wrap}
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.mi{display:flex;align-items:center;gap:8px}.md{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+#mobile-menu{display:none;position:fixed;top:12px;left:12px;z-index:200;width:42px;height:42px;border-radius:10px;background:var(--sidebar);color:#fff;border:none;font-size:20px;cursor:pointer;align-items:center;justify-content:center}
+@media(max-width:800px){#mobile-menu{display:flex}#sidebar{transform:translateX(-100%)}#sidebar.open{transform:translateX(0)}#main{margin-left:0;padding:60px 16px 32px}.kg{grid-template-columns:1fr}.mg{grid-template-columns:1fr}.gap-row{flex-direction:column}.donut-c{flex-direction:column;align-items:flex-start}.sg{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<button id="mobile-menu" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+<div id="sidebar">
+  <div class="sb-logo">
+    <div class="brand"><div class="brand-dot"></div><span class="brand-url">mitarbeiterdashboard.ch</span></div>
+    <h1 id="app-title">MAG-Vorbereitung</h1>
+    <p id="app-sub">Mitarbeitergespräch · Jahresreview</p>
+  </div>
+  <div class="sb-person">
+    <div class="nm" id="sn">Trajkovic Vuk</div>
+    <div class="dt" id="sf">Junior Controller</div>
+    <div class="dt" id="st">Risk Management & Controlling</div>
+    <div class="dt" id="sm" style="margin-top:4px">105% · 04.03.2026</div>
+  </div>
+  <nav id="nav">
+    <button class="active" data-s="salary" onclick="go('salary')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span data-t="nav.salary">Lohnentwicklung</span></button>
+    <button data-s="activity" onclick="go('activity')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span data-t="nav.activity">Tätigkeitsanalyse</span></button>
+    <button data-s="development" onclick="go('development')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg><span data-t="nav.development">Weiterentwicklung</span></button>
+    <button data-s="guide" onclick="go('guide')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><span data-t="nav.guide">Gesprächsleitfaden</span></button>
+    <button data-s="settings" onclick="go('settings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span data-t="nav.settings">Einstellungen</span></button>
+  </nav>
+  <div class="sb-bottom"><button onclick="toggleLang()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="lang-btn">Switch to English</span></button></div>
+  <div class="sb-footer"><a href="https://www.mitarbeiterdashboard.ch" target="_blank">www.mitarbeiterdashboard.ch</a></div>
+</div>
+<div id="main"><div class="mx">
+  <div id="sec-salary" class="section active"><div id="r-salary"></div></div>
+  <div id="sec-activity" class="section"><div id="r-activity"></div></div>
+  <div id="sec-development" class="section"><div id="r-development"></div></div>
+  <div id="sec-guide" class="section"><div id="r-guide"></div></div>
+  <div id="sec-settings" class="section"><div id="r-settings"></div></div>
+</div></div>
+
+<script>
+let L='de';
+let P={name:'Trajkovic Vuk','function':'Junior Controller',team:'Risk Management & Controlling',degree:'105%',supervisor:'Oliver Koller',date:'04.03.2026'};
+let sK=[{l_de:'Gesamtsteigerung seit Einstieg',l_en:'Total increase since entry',v:'+8.8%',s:"CHF 75'400 → 82'000",c:'#2563eb'},{l_de:'Echte Lohnerhöhung (100%-Basis)',l_en:'Real salary increase (100% basis)',v:'+3.6%',s:"CHF 75'400 → 78'095",c:'#0d9488'},{l_de:'Unter Marktschnitt Zürich',l_en:'Below Zürich market avg.',v:'–9 bis 17%',s:"Markt: CHF 86'000–94'500",c:'#ef4444'}];
+let ST=[{date:'Aug 2024',year:75400,month:6283,basis:'100%',pensum:'100%',ev_de:'Einstieg',ev_en:'Entry'},{date:'Dez 2024',year:79170,month:6598,basis:'100%',pensum:'105%',ev_de:'+5% Pensumserhöhung',ev_en:'+5% Pensum increase'},{date:'Mär 2025',year:82000,month:6833,basis:"CHF 78'095",pensum:'105%',ev_de:'Erste Lohnerhöhung +3.6%',ev_en:'First raise +3.6%'},{date:'Feb 2026',year:82000,month:6833,basis:"CHF 78'095",pensum:'105%',ev_de:'Heute / MAG',ev_en:'Today / MAG'}];
+let MD={current:78095,conservative:86000,indeed:94504,targetLow:90000,targetHigh:95000};
+let aK=[{l_de:'Pensum (angestellt)',l_en:'Pensum (employed)',v:'105%',sd:'',se:'',c:'#2563eb'},{l_de:'Aufwand früher',l_en:'Former workload',v:'~125%',sd:'auf mehrere Personen verteilt',se:'distributed across multiple people',c:'#64748b'},{l_de:'PM-Ersparnis Automatisierung',l_en:'PM savings automation',v:'–1.5 AT/Mt',sd:'',se:'',c:'#0d9488'},{l_de:'Neue Tätigkeiten seit Start',l_en:'New tasks since start',v:'+3',sd:'',se:'',c:'#f59e0b'}];
+let aN={td:'Performance Meeting: Automatisierung spart ~1.5 AT/Mt ≈ 18 AT/Jahr',te:'Performance Meeting: Automation saves ~1.5 WD/Mo ≈ 18 WD/year',sd:'~7% Kapazität monatlich zurückgewonnen',se:'~7% capacity recovered monthly'};
+let TK=[{id:1,task:'Monatsstatistik',effort:'Ø 1 AT/Mt',pct:4.7,cat:'Reporting'},{id:2,task:'Deckungsbeitragsrechnung',effort:'2 AT/Mt',pct:9.3,cat:'Reporting'},{id:3,task:'Kundenreports',effort:'1.5 AT/Mt',pct:7.0,cat:'Reporting'},{id:4,task:'Performance Meeting ★',effort:'2 AT/Mt',pct:9.3,cat:'Reporting'},{id:5,task:'BI Qlik (täglich)',effort:'40 min/Tag',pct:7.8,cat:'BI & Tools'},{id:6,task:'Power BI Aufbereitung',effort:'1h/Woche',pct:2.3,cat:'BI & Tools'},{id:7,task:'BI Migrationsprojekt',effort:'~15%',pct:15.0,cat:'BI & Tools'},{id:8,task:'Analyse & Recherche',effort:'~12%',pct:12.0,cat:'Analyse'},{id:9,task:'Admin / Meetings',effort:'5h/Woche',pct:11.7,cat:'Organisation'},{id:10,task:'Bilateral Gespräch',effort:'1h/Woche',pct:2.3,cat:'Organisation'},{id:11,task:'BI Koordination',effort:'4h/Woche',pct:9.4,cat:'Organisation'},{id:12,task:'Spontane Meetings / Mail',effort:'2h/Woche',pct:4.7,cat:'Organisation'},{id:13,task:'Puffer',effort:'–',pct:4.8,cat:'Organisation'}];
+let PH=[{id:1,st:'active',td:'BI-Migration & Stabilisierung',te:'BI Migration & Stabilization',dr:'Feb 2026 – Sommer 2026',b:['BI-Migrationsprojekt Qlik → Power BI abschliessen','10 operative Power BI Reports live','Dokumentation der Reports, Datenflüsse und Wartungsprozesse','Financial Controlling als Kernaufgabe (100%)','Netzwerk Hamburg weiter pflegen']},{id:2,st:'upcoming',td:'Power BI Product Owner',te:'Power BI Product Owner',dr:'Herbst 2026 – Sommer 2027',b:['Formelle Übernahme: Product Owner Power BI','Zentrale Anlaufstelle für alle Report-Anfragen','Priorisierung: 32 Reports strukturiert verwalten','Schnittstelle zwischen Controlling, IT und Data Engineer','CAS-Weiterbildung starten (~15 ECTS)']},{id:3,st:'future',td:'Controller mit digitaler Fachverantwortung',te:'Controller with Digital Expertise',dr:'Ab 2028',b:['Titel: Controller (Financial Controlling + BI Ownership)','CAS abgeschlossen — Nachweis und Differenzierung','Marktkonformes Gehalt, transferierbares Profil','Portfolio-Kenntnisse: Ankaufskalkulation, Credit Checks','Controlling und Daten-Infrastruktur in einer Person']}];
+let MS=[{id:1,w:'BI-Migration abschliessen (10 Reports)',who:'VUTRA/OLKOE',u:'30.06.2026'},{id:2,w:'Titelanpassung Controller + BI PO',who:'VUTRA/OLKOE',u:'31.08.2026'},{id:3,w:'CAS-Weiterbildung evaluieren & starten',who:'VUTRA',u:'28.02.2027'},{id:4,w:'Gehaltsanpassung marktkonform',who:'OLKOE',u:'30.06.2026'}];
+let cM=[{de:'Ich leiste deutlich mehr als mein Titel und Gehalt widerspiegeln.',en:'I deliver significantly more than my title and salary reflect.'},{de:'Ohne Kapazitätsanpassung ist nachhaltige Qualität nicht möglich.',en:'Without capacity adjustment, sustainable quality isn\'t possible.'},{de:'Ich will hier wachsen — aber ich brauche die Rahmenbedingungen dafür.',en:'I want to grow here — but I need the framework for it.'}];
+let gP=[{td:'Leistungsbilanz — Was ich geleistet habe',te:'Performance Review — What I\'ve achieved',dur:'~10 Min',pd:['Aufgabenübernahme: ~125% auf mehrere Personen → 105% allein seit Aug 2024','Projektleitung BI-Migration: Qlik → Power BI, 10 Reports geplant','Automatisierung: Performance Meeting 3.5→2 AT/Mt = 18 AT/Jahr gespart','Power BI: 3 Reports live, FH Bern BootCamp (5 ECTS)','Netzwerk Hamburg: 3 Einsätze, Credit Checks, Portfolio-Knowhow'],pe:['Task takeover: ~125% across multiple people → 105% alone since Aug 2024','Project lead BI migration: Qlik → Power BI, 10 reports planned','Automation: Performance Meeting 3.5→2 WD/Mo = 18 WD/year saved','Power BI: 3 reports live, FH Bern BootCamp (5 ECTS)','Hamburg network: 3 visits, credit checks, portfolio know-how'],od:'Ich möchte zuerst kurz zusammenfassen, was seit meinem Start passiert ist — damit wir eine gemeinsame Basis haben.',oe:'I\'d like to briefly summarize what happened since my start — to establish common ground.'},{td:'Die Kapazitätsfrage — Das zentrale Thema',te:'The Capacity Question — The Core Topic',dur:'~10 Min',pd:['Bei 105% Pensum gibt es keinen Puffer','BI-Migration wird intensiver (10 Reports bis November)','Vorschlag: Operative Aufgaben teilweise abgeben','32 Reports identifiziert, keine Reporting-Abteilung — wer übernimmt?'],pe:['At 105% workload, there\'s no buffer','BI migration intensifies (10 reports by November)','Proposal: Delegate some operational tasks','32 reports identified, no reporting department — who takes ownership?'],od:'Ich bin bereit, diese Verantwortung zu übernehmen. Aber das geht nur, wenn wir ehrlich über die Kapazität reden.',oe:'I\'m ready to take on this responsibility. But that only works if we\'re honest about capacity.'},{td:'Gehalt — Marktvergleich & Forderung',te:'Salary — Market Comparison & Request',dur:'~5 Min',pd:["Forderung: CHF 90'000 auf 100%-Basis (= CHF 94'500 bei 105%)","Markt: CHF 86'000–94'500 — aktuell 9–17% darunter","Seit März 2025 keine Erhöhung trotz massiv gestiegener Verantwortung","Minimum: CHF 88'000"],pe:["Request: CHF 90'000 at 100% basis (= CHF 94'500 at 105%)","Market: CHF 86'000–94'500 — currently 9–17% below","No raise since March 2025 despite massively increased responsibility","Minimum: CHF 88'000"],od:'Mein Gehalt liegt aktuell 9–17% unter dem Marktschnitt für Controller in Zürich.',oe:'My salary is currently 9–17% below the market average for controllers in Zürich.'},{td:'Entwicklungsperspektive — Gemeinsamer Plan',te:'Development Perspective — Joint Plan',dur:'~5 Min',pd:['Kurzfristig: BI-Migration abschliessen (bis Sommer 2026)','Mittelfristig: Power BI Ownership formalisieren (Herbst 2026)','CAS-Weiterbildung: Ab 2027, nach klarer Rollenverteilung','Signal: Ich will hier wachsen — brauche Rahmenbedingungen'],pe:['Short-term: Complete BI migration (by Summer 2026)','Mid-term: Formalize Power BI ownership (Fall 2026)','CAS education: From 2027, after clear role distribution','Signal: I want to grow here — need the right framework'],od:'Ich sehe meine Zukunft bei EOS. Aber ich möchte offen sein: Es funktioniert nur mit realistischer Aufgabenverteilung.',oe:'I see my future at EOS. But I want to be open: it only works with realistic task distribution.'}];
+let SC=[{td:'«Das Budget gibt das nicht her»',te:'"The budget doesn\'t allow it"',rd:'Können wir einen konkreten Zeitpunkt vereinbaren — z.B. nach dem Projektabschluss? Die Kapazitätsfrage ist unabhängig vom Budget.',re:'Can we agree on a specific date — e.g. after project completion? The capacity question is independent of budget.'},{td:'«Du bist noch Junior»',te:'"You\'re still junior"',rd:'Was muss ich konkret tun, damit wir über eine Anpassung reden? Ab wann ist der Titel Junior nicht mehr zutreffend?',re:'What exactly do I need to do for us to discuss an adjustment? When does the Junior title no longer apply?'},{td:'«Wir können keine Aufgaben abgeben»',te:'"We can\'t delegate tasks"',rd:'Dann müssen wir gemeinsam priorisieren. Was passiert mit der BI-Migration, wenn ich alles parallel mache?',re:'Then we need to prioritize together. What happens to BI migration if I do everything in parallel?'},{td:'Alles wird positiv aufgenommen',te:'Everything is received positively',rd:'Nicht übermütig werden. Zusammenfassen, schriftliche Bestätigung erbitten, Follow-up in 3 Monaten.',re:'Don\'t get overconfident. Summarize, request written confirmation, follow-up in 3 months.'}];
+let cld=['Tätigkeitsanalyse ausgedruckt','Lohnentwicklung ausgedruckt','Weiterentwicklungs-PDF ausgedruckt','Kernbotschaften verinnerlicht',"Gehaltszahl: CHF 90'000 — Min. CHF 88'000",'Frage: Wie lösen wir die Kapazitätsfrage?','Stift und Papier dabei'];
+let cle=['Activity analysis printed','Salary development printed','Development PDF printed','Core messages internalized',"Salary: CHF 90'000 — Min. CHF 88'000",'Question: How do we solve capacity?','Pen and paper ready'];
+let CK=[false,false,false,false,false,false,false];
+const CATS=['Reporting','BI & Tools','Analyse','Organisation'];
+const CC={'Reporting':'#2563eb','BI & Tools':'#0d9488','Analyse':'#f59e0b','Organisation':'#64748b'};
+const TR={de:{'nav.salary':'Lohnentwicklung','nav.activity':'Tätigkeitsanalyse','nav.development':'Weiterentwicklung','nav.guide':'Gesprächsleitfaden','nav.settings':'Einstellungen','s.t':'Lohnentwicklung','s.s':'Aug 2024 – Feb 2026 · Analyse für MAG','s.tl':'Gehalts-Zeitstrahl','s.mk':'Marktvergleich · Controller Zürich 2025','s.ev':'Ereignis','s.pe':'Pensum','s.ba':'Basis','s.cu':'Aktuell (100%-Basis)','s.co':'Marktschnitt konservativ','s.in':'Marktschnitt (Indeed, 115 Ang.)','s.ta':'Ziel MAG','s.gc':'Gap zum konservativen Schnitt','s.gi':'Gap zum Indeed-Schnitt','a.t':'Tätigkeitsanalyse','a.s':'Kapazitätsnachweis & Leistungsübersicht · Februar 2026','a.c':'Kapazitätsverteilung','a.tt':'Aufgaben — Zeitaufwand & Pensum pro Monat','a.tk':'Tätigkeit','a.ef':'Zeitaufwand/Monat','a.pc':'% Pensum','a.ct':'Kategorie','a.ar':'Zeile hinzufügen','d.t':'Weiterentwicklung & Perspektiven','d.s':'Entwicklungsplan 2026–2028 · MAG-Vorbereitung','d.r':'Entwicklungsroadmap 2026–2028','d.m':'Entwicklungsschritte','d.w':'Was','d.wh':'Wer','d.u':'Bis wann','d.am':'Schritt hinzufügen','d.ab':'Punkt hinzufügen','d.ac':'Aktiv','d.up':'Geplant','d.fu':'Zielbild','g.t':'Gesprächsleitfaden','g.s':'Roter Faden für das Mitarbeitergespräch','g.c':'Deine 3 Kernbotschaften','g.sc':'Szenarien','g.ch':'Abschluss-Checkliste','x.t':'Persönliche Daten','x.sv':'Speichern (JSON)','x.ld':'Laden (JSON)','x.n':'Name','x.f':'Funktion','x.te':'Team','x.d':'Beschäftigungsgrad','x.su':'Vorgesetzter','x.da':'Datum','to':'TOTAL','wa':'Warnung: Total ≠ 105%','dl':'Entf.','dn':'erledigt'},en:{'nav.salary':'Salary Development','nav.activity':'Activity Analysis','nav.development':'Development Roadmap','nav.guide':'Conversation Guide','nav.settings':'Settings','s.t':'Salary Development','s.s':'Aug 2024 – Feb 2026 · Analysis for MAG','s.tl':'Salary Timeline','s.mk':'Market Comparison · Controller Zürich 2025','s.ev':'Event','s.pe':'Pensum','s.ba':'Basis','s.cu':'Current (100% basis)','s.co':'Market avg. conservative','s.in':'Market avg. (Indeed, 115 entries)','s.ta':'Target MAG','s.gc':'Gap to conservative avg.','s.gi':'Gap to Indeed avg.','a.t':'Activity Analysis','a.s':'Capacity Proof & Performance Overview · February 2026','a.c':'Capacity Breakdown','a.tt':'Tasks — Effort & Pensum per Month','a.tk':'Task','a.ef':'Effort/Month','a.pc':'% Pensum','a.ct':'Category','a.ar':'Add Row','d.t':'Development & Perspectives','d.s':'Development Plan 2026–2028 · MAG Preparation','d.r':'Development Roadmap 2026–2028','d.m':'Development Steps','d.w':'What','d.wh':'Who','d.u':'Deadline','d.am':'Add Step','d.ab':'Add Bullet','d.ac':'Active','d.up':'Planned','d.fu':'Target','g.t':'Conversation Guide','g.s':'Red Thread for the Annual Review','g.c':'Your 3 Core Messages','g.sc':'Scenarios','g.ch':'Final Checklist','x.t':'Personal Data','x.sv':'Save (JSON)','x.ld':'Load (JSON)','x.n':'Name','x.f':'Function','x.te':'Team','x.d':'Employment Rate','x.su':'Supervisor','x.da':'Date','to':'TOTAL','wa':'Warning: Total ≠ 105%','dl':'Del.','dn':'completed'}};
+function t(k){return TR[L][k]||k}
+function fmt(n){return n.toLocaleString('de-CH',{maximumFractionDigits:0})}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;')}
+function inp(v,cls,oc,tp){tp=tp||'text';return '<input type="'+tp+'" class="e'+(cls?' '+cls:'')+'" value="'+esc(v)+'" onchange="'+oc+'"'+(tp==='number'?' step="0.1"':'')+'>';}
+let cT=null,cMk=null,cD=null;
+function go(s){document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));document.getElementById('sec-'+s).classList.add('active');document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));document.querySelector('#nav button[data-s="'+s+'"]').classList.add('active');document.getElementById('sidebar').classList.remove('open');if(s==='salary')setTimeout(()=>{rCT();rCM()},60);if(s==='activity')setTimeout(rCD,60);}
+function toggleLang(){L=L==='de'?'en':'de';document.getElementById('lang-btn').textContent=L==='de'?'Switch to English':'Auf Deutsch wechseln';document.getElementById('app-title').textContent=L==='de'?'MAG-Vorbereitung':'MAG Preparation';document.getElementById('app-sub').textContent=L==='de'?'Mitarbeitergespräch · Jahresreview':'Annual Employee Review';document.querySelectorAll('[data-t]').forEach(el=>{const k=el.getAttribute('data-t');if(TR[L][k])el.textContent=TR[L][k];});rAll();}
+function uS(){document.getElementById('sn').textContent=P.name;document.getElementById('sf').textContent=P['function'];document.getElementById('st').textContent=P.team;document.getElementById('sm').textContent=P.degree+' · '+P.date;}
+
+// ═══ SALARY ═══
+function rSal(){let h='<h2 style="font-size:22px;font-weight:800;color:#0f172a">'+t('s.t')+'</h2><p style="font-size:13px;color:var(--text3);margin:4px 0 18px">'+t('s.s')+'</p>';
+h+='<div class="kg">';sK.forEach((k,i)=>{h+='<div class="kpi bl" style="border-left-color:'+k.c+'"><input class="el" value="'+esc(L==='de'?k.l_de:k.l_en)+'" onchange="sK['+i+'][\''+(L==='de'?'l_de':'l_en')+'\']=this.value"><input class="ek" style="color:'+k.c+'" value="'+esc(k.v)+'" onchange="sK['+i+'].v=this.value"><input class="es" value="'+esc(k.s)+'" onchange="sK['+i+'].s=this.value"></div>';});h+='</div>';
+h+='<div class="card"><div class="ct">'+t('s.tl')+'</div><div style="height:280px;position:relative"><canvas id="cT"></canvas></div>';
+h+='<div style="overflow-x:auto;margin-top:14px"><table><thead><tr><th>'+t('s.ev')+'</th><th>Datum</th><th>CHF/Jahr</th><th>CHF/Monat</th><th>'+t('s.pe')+'</th><th>'+t('s.ba')+'</th><th></th></tr></thead><tbody>';
+const ek=L==='de'?'ev_de':'ev_en';ST.forEach((r,i)=>{h+='<tr><td>'+inp(r[ek],'','ST['+i+'].'+ek+'=this.value')+'</td><td>'+inp(r.date,'','ST['+i+'].date=this.value;rCT()')+'</td><td>'+inp(r.year,'e-num','ST['+i+'].year=+this.value||0;rCT()','number')+'</td><td>'+inp(r.month,'e-num','ST['+i+'].month=+this.value||0','number')+'</td><td>'+inp(r.pensum,'','ST['+i+'].pensum=this.value')+'</td><td>'+inp(r.basis,'','ST['+i+'].basis=this.value')+'</td><td><button class="btn bd bs" onclick="ST.splice('+i+',1);rSal();setTimeout(()=>{rCT();rCM()},60)">'+t('dl')+'</button></td></tr>';});
+h+='</tbody></table><button class="btn bp bs" style="margin-top:10px" onclick="ST.push({date:\'Neu\',year:0,month:0,basis:\'–\',pensum:\'–\',ev_de:\'Neu\',ev_en:\'New\'});rSal();setTimeout(()=>{rCT();rCM()},60)">+ Zeile</button></div></div>';
+h+='<div class="card"><div class="ct">'+t('s.mk')+'</div><div style="height:300px;position:relative"><canvas id="cM"></canvas></div>';
+h+='<div class="mg">';
+[{l:t('s.cu'),k:'current',c:'#ef4444'},{l:t('s.co'),k:'conservative',c:'#64748b'},{l:t('s.in'),k:'indeed',c:'#2563eb'}].forEach(f=>{h+='<div class="mi"><div class="md" style="background:'+f.c+'"></div><span style="font-size:12px;color:var(--text3);min-width:100px">'+f.l+':</span><span style="font-weight:700;font-size:13px">CHF</span>'+inp(MD[f.k],'e-num','MD.'+f.k+'=+this.value||0;rCM();rGap()','number')+'</div>';});
+h+='<div class="mi"><div class="md" style="background:#0d9488"></div><span style="font-size:12px;color:var(--text3)">'+t('s.ta')+':</span><span style="font-weight:700;font-size:13px">CHF</span>'+inp(MD.targetLow,'e-num','MD.targetLow=+this.value||0;rCM()','number')+'<span style="margin:0 4px">–</span>'+inp(MD.targetHigh,'e-num','MD.targetHigh=+this.value||0;rCM()','number')+'</div></div>';
+h+='<div class="gap-row" id="gc"></div></div>';
+document.getElementById('r-salary').innerHTML=h;rGap();}
+function rGap(){const gc=((MD.current-MD.conservative)/MD.conservative*100).toFixed(1),gi=((MD.current-MD.indeed)/MD.indeed*100).toFixed(1),el=document.getElementById('gc');if(!el)return;el.innerHTML='<div class="gap-card" style="background:var(--red-light)"><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">'+t('s.gc')+'</div><div style="font-size:22px;font-weight:800;color:var(--red);margin:4px 0">'+gc+'%</div><div style="font-size:12px;color:var(--text3)">CHF '+fmt(MD.current-MD.conservative)+'</div></div><div class="gap-card" style="background:var(--blue-light)"><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">'+t('s.gi')+'</div><div style="font-size:22px;font-weight:800;color:var(--blue);margin:4px 0">'+gi+'%</div><div style="font-size:12px;color:var(--text3)">CHF '+fmt(MD.current-MD.indeed)+'</div></div>';}
+function rCT(){if(cT)cT.destroy();const c=document.getElementById('cT');if(!c)return;cT=new Chart(c,{type:'line',data:{labels:ST.map(r=>r.date),datasets:[{label:L==='de'?'Brutto/Jahr':'Gross/Year',data:ST.map(r=>r.year),borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.08)',borderWidth:3,pointRadius:7,pointBackgroundColor:'#2563eb',pointBorderColor:'#fff',pointBorderWidth:2,fill:true,tension:.3}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:70000,max:90000,ticks:{callback:v=>(v/1000)+'k',font:{size:12}},grid:{color:'#e2e8f0'}},x:{ticks:{font:{size:12}},grid:{display:false}}},plugins:{tooltip:{callbacks:{label:c=>'CHF '+fmt(c.parsed.y)}},legend:{display:false}}}});}
+function rCM(){if(cMk)cMk.destroy();const c=document.getElementById('cM');if(!c)return;const lb=[t('s.cu'),L==='de'?'Konservativ':'Conservative','Indeed',L==='de'?'Ziel':'Target'],vl=[MD.current,MD.conservative,MD.indeed,(MD.targetLow+MD.targetHigh)/2],cl=['#ef4444','#64748b','#2563eb','#0d9488'];cMk=new Chart(c,{type:'bar',data:{labels:lb,datasets:[{data:vl,backgroundColor:cl,borderRadius:6,barPercentage:.5}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:60000,max:100000,ticks:{callback:v=>(v/1000)+'k',font:{size:12}},grid:{color:'#e2e8f0'}},x:{ticks:{font:{size:11}},grid:{display:false}}},plugins:{tooltip:{callbacks:{label:c=>'CHF '+fmt(c.parsed.y)}},legend:{display:false}}}});}
+
+// ═══ ACTIVITY ═══
+function rAct(){let h='<h2 style="font-size:22px;font-weight:800;color:#0f172a">'+t('a.t')+'</h2><p style="font-size:13px;color:var(--text3);margin:4px 0 18px">'+t('a.s')+'</p>';
+h+='<div class="kg">';aK.forEach((k,i)=>{const sub=L==='de'?k.sd:k.se;h+='<div class="kpi bt" style="border-top-color:'+k.c+'"><input class="el" value="'+esc(L==='de'?k.l_de:k.l_en)+'" onchange="aK['+i+'][\''+(L==='de'?'l_de':'l_en')+'\']=this.value"><input class="ek" style="color:'+k.c+'" value="'+esc(k.v)+'" onchange="aK['+i+'].v=this.value">'+(sub?'<input class="es" value="'+esc(sub)+'" onchange="aK['+i+'][\''+(L==='de'?'sd':'se')+'\']=this.value">':'')+'</div>';});h+='</div>';
+h+='<div class="card"><div class="ct">'+t('a.c')+'</div><div class="donut-c"><div style="width:220px;height:220px;flex-shrink:0"><canvas id="cD"></canvas></div><div id="dl"></div></div></div>';
+h+='<div class="co" style="background:linear-gradient(135deg,#ecfdf5,#f0fdf4);border-color:var(--teal)"><span style="font-size:20px">⚡</span><div style="flex:1">'+inp(L==='de'?aN.td:aN.te,'','aN[\''+(L==='de'?'td':'te')+'\']=this.value')+'<div style="margin-top:4px">'+inp(L==='de'?aN.sd:aN.se,'','aN[\''+(L==='de'?'sd':'se')+'\']=this.value')+'</div></div></div>';
+h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div class="ct" style="margin:0">'+t('a.tt')+'</div><button class="btn bp bs" onclick="TK.push({id:Date.now(),task:\'Neu\',effort:\'–\',pct:0,cat:\'Organisation\'});rAct();setTimeout(rCD,60)">'+t('a.ar')+'</button></div><div style="overflow-x:auto"><table><thead><tr><th>'+t('a.tk')+'</th><th>'+t('a.ef')+'</th><th>'+t('a.pc')+'</th><th>'+t('a.ct')+'</th><th></th></tr></thead><tbody>';
+TK.forEach((r,i)=>{const sel=CATS.map(c=>'<option value="'+c+'"'+(r.cat===c?' selected':'')+'>'+c+'</option>').join('');h+='<tr><td>'+inp(r.task,'','TK['+i+'].task=this.value')+'</td><td>'+inp(r.effort,'','TK['+i+'].effort=this.value')+'</td><td>'+inp(r.pct,'e-num','TK['+i+'].pct=+this.value||0;rTF();rCD()','number')+'</td><td><select class="cs" onchange="TK['+i+'].cat=this.value;rCD()">'+sel+'</select></td><td><button class="btn bd bs" onclick="TK.splice('+i+',1);rAct();setTimeout(rCD,60)">'+t('dl')+'</button></td></tr>';});
+h+='</tbody><tfoot id="tf"></tfoot></table></div></div>';
+document.getElementById('r-activity').innerHTML=h;rTF();}
+function rTF(){const tot=TK.reduce((s,r)=>s+r.pct,0),w=Math.abs(tot-105)>.5,el=document.getElementById('tf');if(!el)return;el.innerHTML='<tr><td colspan="2" style="font-weight:800;color:#0f172a;padding:10px 12px">'+t('to')+'</td><td style="font-weight:800;font-size:15px;color:'+(w?'var(--red)':'var(--teal)')+';padding:10px 12px">'+tot.toFixed(1)+'%</td><td colspan="2" style="padding:10px 12px">'+(w?'<span class="badge" style="background:#fef2f2;color:var(--red)">⚠ '+t('wa')+'</span>':'')+'</td></tr>';}
+function rCD(){if(cD)cD.destroy();const c=document.getElementById('cD');if(!c)return;const cd=CATS.map(cat=>({n:cat,v:+TK.filter(r=>r.cat===cat).reduce((s,r)=>s+r.pct,0).toFixed(1)}));cD=new Chart(c,{type:'doughnut',data:{labels:cd.map(x=>x.n),datasets:[{data:cd.map(x=>x.v),backgroundColor:cd.map(x=>CC[x.n]),borderWidth:0,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:true,cutout:'58%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label+': '+c.parsed+'%'}}}}});const dl=document.getElementById('dl');if(dl)dl.innerHTML=cd.map(x=>'<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:12px;height:12px;border-radius:3px;background:'+CC[x.n]+';flex-shrink:0"></div><span style="font-size:13px;font-weight:600;color:var(--text);min-width:100px">'+x.n+'</span><span style="font-size:13px;color:var(--text3)">'+x.v+'%</span></div>').join('');}
+
+// ═══ DEVELOPMENT ═══
+function rDev(){const sc={'active':'var(--teal)','upcoming':'var(--blue)','future':'var(--slate)'},sl={'active':t('d.ac'),'upcoming':t('d.up'),'future':t('d.fu')},tk=L==='de'?'td':'te';
+let h='<h2 style="font-size:22px;font-weight:800;color:#0f172a">'+t('d.t')+'</h2><p style="font-size:13px;color:var(--text3);margin:4px 0 18px">'+t('d.s')+'</p>';
+h+='<div class="card"><div class="ct">'+t('d.r')+'</div><div class="pb">';PH.forEach((p,i)=>{h+='<div class="pd '+(p.st==='active'?'on':'off')+'">'+(i+1)+'</div>';if(i<PH.length-1)h+='<div class="pl" style="background:'+(p.st==='active'?'var(--teal)':'#e2e8f0')+'"></div>';});h+='</div>';
+PH.forEach((p,i)=>{const col=sc[p.st]||'var(--slate)';h+='<div class="ph'+(p.st==='active'?' act':'')+'"><div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px"><div style="display:flex;align-items:center;gap:10px"><span class="badge" style="background:'+col+'18;color:'+col+'">'+sl[p.st]+'</span><span style="font-size:11px;color:var(--text3);font-weight:600">Phase '+(i+1)+'</span></div>'+inp(p.dr,'','PH['+i+'].dr=this.value')+'</div><div style="margin-bottom:10px">'+inp(p[tk],'','PH['+i+']["'+tk+'"]=this.value')+'</div>';
+p.b.forEach((b,bi)=>{h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span style="color:'+col+';font-size:14px;flex-shrink:0">■</span>'+inp(b,'','PH['+i+'].b['+bi+']=this.value')+'<button class="btn bd bs" style="padding:2px 8px" onclick="PH['+i+'].b.splice('+bi+',1);rDev()">×</button></div>';});
+h+='<button class="btn bo bs" style="margin-top:8px" onclick="PH['+i+'].b.push(\'Neuer Punkt\');rDev()">+ '+t('d.ab')+'</button></div>';});
+h+='</div>';
+h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div class="ct" style="margin:0">'+t('d.m')+'</div><button class="btn bp bs" onclick="MS.push({id:Date.now(),w:\'–\',who:\'–\',u:\'–\'});rDev()">'+t('d.am')+'</button></div><div style="overflow-x:auto"><table><thead><tr><th>#</th><th>'+t('d.w')+'</th><th>'+t('d.wh')+'</th><th>'+t('d.u')+'</th><th></th></tr></thead><tbody>';
+MS.forEach((m,i)=>{h+='<tr><td style="font-weight:700;color:var(--blue);padding:10px 12px">'+(i+1)+'</td><td>'+inp(m.w,'','MS['+i+'].w=this.value')+'</td><td>'+inp(m.who,'','MS['+i+'].who=this.value')+'</td><td>'+inp(m.u,'','MS['+i+'].u=this.value')+'</td><td><button class="btn bd bs" onclick="MS.splice('+i+',1);rDev()">'+t('dl')+'</button></td></tr>';});
+h+='</tbody></table></div></div>';document.getElementById('r-development').innerHTML=h;}
+
+// ═══ GUIDE ═══
+function rGui(){const pk=L==='de'?'pd':'pe',ok=L==='de'?'od':'oe',tk=L==='de'?'td':'te',trk=L==='de'?'td':'te',rek=L==='de'?'rd':'re';
+let h='<h2 style="font-size:22px;font-weight:800;color:#0f172a">'+t('g.t')+'</h2><p style="font-size:13px;color:var(--text3);margin:4px 0 18px">'+t('g.s')+'</p>';
+h+='<div class="card" style="background:linear-gradient(135deg,#eff6ff,#f0f9ff);border-left:4px solid var(--blue)"><div class="ct" style="color:var(--blue)">'+t('g.c')+'</div>';
+cM.forEach((m,i)=>{h+='<div style="display:flex;gap:10px;margin-bottom:10px;align-items:center"><div style="width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0">'+(i+1)+'</div>'+inp(L==='de'?m.de:m.en,'','cM['+i+'][\''+(L==='de'?'de':'en')+'\']=this.value')+'</div>';});h+='</div>';
+gP.forEach((g,i)=>{h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px"><div style="display:flex;align-items:center;gap:10px"><div class="gn">'+(i+1)+'</div>'+inp(g[tk],'','gP['+i+']["'+tk+'"]=this.value')+'</div>'+inp(g.dur,'','gP['+i+'].dur=this.value',)+'</div>';
+h+='<div style="margin-bottom:12px;padding:10px 14px;background:#f8fafc;border-radius:8px;border-left:3px solid var(--teal)"><textarea class="e" onchange="gP['+i+'].'+ok+'=this.value">'+esc(g[ok])+'</textarea></div>';
+g[pk].forEach((p,pi)=>{h+='<div style="display:flex;gap:8px;margin-bottom:4px;align-items:center"><span style="color:var(--blue);flex-shrink:0">▸</span>'+inp(p,'','gP['+i+'].'+pk+'['+pi+']=this.value')+'<button class="btn bd bs" style="padding:2px 8px" onclick="gP['+i+'].'+pk+'.splice('+pi+',1);rGui()">×</button></div>';});
+h+='<button class="btn bo bs" style="margin-top:6px" onclick="gP['+i+'].'+pk+'.push(\'Neuer Punkt\');rGui()">+ Punkt</button></div>';});
+h+='<div class="card"><div class="ct">'+t('g.sc')+'</div>';
+SC.forEach((s,i)=>{h+='<div style="padding:12px 16px;background:#f8fafc;border-radius:8px;border:1px solid var(--border);margin-bottom:10px">'+inp(s[trk],'','SC['+i+']["'+trk+'"]=this.value')+'<div style="display:flex;gap:6px;align-items:center;margin-top:4px"><span style="color:var(--teal);font-weight:700">→</span>'+inp(s[rek],'','SC['+i+']["'+rek+'"]=this.value')+'</div></div>';});
+h+='<button class="btn bo bs" onclick="SC.push({td:\'Neues Szenario\',te:\'New scenario\',rd:\'Antwort\',re:\'Response\'});rGui()">+ Szenario</button></div>';
+const cl=L==='de'?cld:cle,clk=L==='de'?'cld':'cle';
+h+='<div class="card"><div class="ct">'+t('g.ch')+'</div>';
+cl.forEach((item,i)=>{h+='<div class="chk'+(CK[i]?' done':'')+'"><input type="checkbox" '+(CK[i]?'checked':'')+' onchange="CK['+i+']=this.checked;rGui()">'+inp(item,'',clk+'['+i+']=this.value')+'</div>';});
+const dn=CK.filter(Boolean).length;h+='<div style="margin-top:12px;padding:10px 16px;background:var(--teal-light);border-radius:8px;font-size:13px;color:var(--teal);font-weight:600">'+dn+'/'+CK.length+' '+t('dn')+'</div></div>';
+document.getElementById('r-guide').innerHTML=h;}
+
+// ═══ SETTINGS ═══
+function rSet(){let h='<h2 style="font-size:22px;font-weight:800;color:#0f172a;margin-bottom:18px">'+t('x.t')+'</h2><div class="card"><div class="sg">';
+[['name','x.n'],['function','x.f'],['team','x.te'],['degree','x.d'],['supervisor','x.su'],['date','x.da']].forEach(([f,lk])=>{h+='<div><label>'+t(lk)+'</label><input value="'+esc(P[f])+'" onchange="P[\''+f+'\']=this.value;uS()"></div>';});
+h+='</div></div><div class="card"><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button class="btn bp" onclick="saveJ()">'+t('x.sv')+'</button><button class="btn bo" onclick="document.getElementById(\'fi\').click()">'+t('x.ld')+'</button><input type="file" id="fi" accept=".json" style="display:none" onchange="loadJ(event)"><span id="ls" style="font-size:12px;color:var(--text3)"></span></div></div>';
+h+='<div class="card" style="text-align:center;padding:20px;border-top:3px solid var(--teal)"><div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:4px"><div style="width:8px;height:8px;border-radius:50%;background:var(--teal)"></div><a href="https://www.mitarbeiterdashboard.ch" target="_blank" style="font-size:13px;font-weight:700;color:var(--teal);text-decoration:none">www.mitarbeiterdashboard.ch</a></div><p style="font-size:11px;color:var(--text3)">Professionelle MAG-Vorbereitung · Alle Daten lokal · Keine Cloud</p></div>';
+document.getElementById('r-settings').innerHTML=h;}
+
+// ═══ SAVE/LOAD ═══
+function saveJ(){const d={P,sK,ST,MD,aK,aN,TK,PH,MS,cM,gP,SC,cld,cle,CK,savedAt:new Date().toISOString()};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='MAG_'+P.name.replace(/\s/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);const ls=document.getElementById('ls');if(ls)ls.textContent=(L==='de'?'Gespeichert: ':'Saved: ')+new Date().toLocaleString('de-CH');}
+function loadJ(e){const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=function(ev){try{const d=JSON.parse(ev.target.result);if(d.P)P=d.P;if(d.sK)sK=d.sK;if(d.ST)ST=d.ST;if(d.MD)MD=d.MD;if(d.aK)aK=d.aK;if(d.aN)aN=d.aN;if(d.TK)TK=d.TK;if(d.PH)PH=d.PH;if(d.MS)MS=d.MS;if(d.cM)cM=d.cM;if(d.gP)gP=d.gP;if(d.SC)SC=d.SC;if(d.cld)cld=d.cld;if(d.cle)cle=d.cle;if(d.CK)CK=d.CK;rAll();uS();const ls=document.getElementById('ls');if(ls&&d.savedAt)ls.textContent=(L==='de'?'Geladen: ':'Loaded: ')+new Date(d.savedAt).toLocaleString('de-CH');}catch(err){alert('Ungültige JSON / Invalid JSON');}};r.readAsText(f);e.target.value='';}
+
+function rAll(){rSal();rAct();rDev();rGui();rSet();uS();const a=document.querySelector('.section.active');if(a&&a.id==='sec-salary')setTimeout(()=>{rCT();rCM()},60);if(a&&a.id==='sec-activity')setTimeout(rCD,60);}
+document.addEventListener('DOMContentLoaded',function(){rAll();setTimeout(()=>{rCT();rCM()},150);});
+</script>
+</body>
+</html>
